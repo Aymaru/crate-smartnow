@@ -60,7 +60,7 @@ setup(
     namespace_packages=['crate-smartnow'],
     entry_points={
         'sqlalchemy.dialects': [
-            'crate = crate-smartnow.client.sqlalchemy:CrateDialect'
+            'crate-smartnow = crate.client.sqlalchemy:CrateDialect'
         ]
     },
     extras_require=dict(
