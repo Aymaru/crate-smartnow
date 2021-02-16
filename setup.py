@@ -45,7 +45,7 @@ else:
 
 setup(
     name='crate-smartnow',
-    version='0.101',
+    version='0.2',
     url='https://github.com/Aymaru/crate-smartnow.git',
     author='Crate.io',
     author_email='office@crate.io',
