@@ -23,6 +23,7 @@ from .exceptions import ProgrammingError
 from distutils.version import StrictVersion
 import warnings
 import pandas as pd
+from datetime import datetime
 
 BULK_INSERT_MIN_VERSION = StrictVersion("0.42.0")
 
@@ -70,17 +71,17 @@ class Cursor(object):
 
     @staticmethod
     def _date_to_pd_timestamp(row, rows_to_convert):
-        # return list(map(lambda x,y: datetime.fromtimestamp(float(str(x)[0:10]) if y else x, row,rows_to_convert))
-        return list(
-            map(lambda x, y:
-                pd.Timestamp(float(str(x)[0:10]), unit='s') if y else x,
-                row,
-                rows_to_convert))
+        return list(map(lambda x, y: datetime.fromtimestamp(float(str(x)[0:10])) if y else x, row, rows_to_convert))
+        # return list(
+        #     map(lambda x, y:
+        #         pd.Timestamp(float(str(x)[0:10]), unit='s') if y else x,
+        #         row,
+        #         rows_to_convert))
 
     def _convert_dates_to_pd_timestamp(self, rows, rows_to_convert):
         return list(
             map(lambda x:
-                self._date_to_pd_timestamp(x,rows_to_convert),
+                self._date_to_pd_timestamp(x, rows_to_convert),
                 rows))
 
     def executemany(self, sql, seq_of_parameters):
