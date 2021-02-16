@@ -35,7 +35,7 @@ def read(path):
 
 
 long_description = read('README.rst')
-versionf_content = read("src/crate/client/__init__.py")
+versionf_content = read("src/crate-smartnow/client/__init__.py")
 version_rex = r'^__version__ = [\'"]([^\'"]*)[\'"]$'
 m = re.search(version_rex, versionf_content, re.M)
 if m:
@@ -44,9 +44,9 @@ else:
     raise RuntimeError('Unable to find version string')
 
 setup(
-    name='crate',
+    name='crate-smartnow',
     version=version,
-    url='https://github.com/crate/crate-python',
+    url='https://github.com/Aymaru/crate-smartnow.git',
     author='Crate.io',
     author_email='office@crate.io',
     package_dir={'': 'src'},
@@ -57,10 +57,10 @@ setup(
     license='Apache License 2.0',
     keywords='crate db api sqlalchemy',
     packages=find_packages('src'),
-    namespace_packages=['crate'],
+    namespace_packages=['crate-smartnow'],
     entry_points={
         'sqlalchemy.dialects': [
-            'crate = crate.client.sqlalchemy:CrateDialect'
+            'crate = crate-smartnow.client.sqlalchemy:CrateDialect'
         ]
     },
     extras_require=dict(
