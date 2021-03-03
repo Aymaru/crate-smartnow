@@ -71,12 +71,11 @@ class Cursor(object):
 
     @staticmethod
     def _date_to_pd_timestamp(row, rows_to_convert):
-        return list(map(lambda x, y: datetime.fromtimestamp(float(str(x)[0:10])) if y else x, row, rows_to_convert))
-        # return list(
-        #     map(lambda x, y:
-        #         pd.Timestamp(float(str(x)[0:10]), unit='s') if y else x,
-        #         row,
-        #         rows_to_convert))
+        return list(
+            map(lambda x, y:
+                datetime.fromtimestamp(float(str(x)[0:10])) if (y and x is not None) else x,
+                row,
+                rows_to_convert))
 
     def _convert_dates_to_pd_timestamp(self, rows, rows_to_convert):
         return list(
