@@ -55,33 +55,35 @@ class Cursor(object):
         self._result = self.connection.client.sql(sql, parameters,
                                                   bulk_parameters)
         if "rows" in self._result:
-            # **********
-            col_types = self._result["col_types"]
-            tmp_data = self._result["rows"]
-            rows_to_convert = self._get_rows_to_convert_to_date(col_types)
-            tmp_data = self._convert_dates_to_pd_timestamp(tmp_data, rows_to_convert)
-
-            self._result["rows"] = tmp_data
-            # **********
+            if "col_types" in self._result:
+                rows_to_convert = self._get_rows_to_convert_to_date(self._result["col_types"])
+                for flag in rows_to_convert:
+                    if flag:
+                        t_rows = (row for row in self._result["rows"])
+                        t_values = (self._transform_date_columns(row, rows_to_convert) for row in t_rows)
+                        self._result["rows"] = [value for value in t_values]
+                        break
             self.rows = iter(self._result["rows"])
 
     @staticmethod
-    def _get_rows_to_convert_to_date(col_types):
-        return [True if col_type == 11 or col_type == 15 else False for col_type in col_types]
+    def _transform_date_columns(row, flags):
+        """
+        Generates a list of boolean. True if the column is type timestamp (11 - 15)
+        """
+        gen_flags = (flag for flag in flags)
+        for value in row:
+            flag = next(gen_flags)
+            if not flag or value is None:
+                yield value
+            else:
+                yield datetime.fromtimestamp(float(str(value)[0:10]))
 
     @staticmethod
-    def _date_to_pd_timestamp(row, rows_to_convert):
-        return list(
-            map(lambda x, y:
-                datetime.fromtimestamp(float(str(x)[0:10])) if (y and x is not None) else x,
-                row,
-                rows_to_convert))
-
-    def _convert_dates_to_pd_timestamp(self, rows, rows_to_convert):
-        return list(
-            map(lambda x:
-                self._date_to_pd_timestamp(x, rows_to_convert),
-                rows))
+    def _get_rows_to_convert_to_date(col_types):
+        """
+        Generates a list of boolean. True if the column is type timestamp (11 - 15)
+        """
+        return [True if col_type == 11 or col_type == 15 else False for col_type in col_types]
 
     def executemany(self, sql, seq_of_parameters):
         """
