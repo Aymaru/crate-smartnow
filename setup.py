@@ -45,8 +45,8 @@ else:
 
 setup(
     name='crate-smartnow',
-    version='1.1',
-    url='https://github.com/Aymaru/crate-smartnow/archive/v1.0.tar.gz',
+    version='1.4',
+    url='https://github.com/Aymaru/crate-smartnow/archive/v1.2.tar.gz',
     author='Crate.io',
     author_email='office@crate.io',
     package_dir={'': 'src'},
