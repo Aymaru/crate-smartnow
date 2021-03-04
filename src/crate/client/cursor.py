@@ -22,7 +22,6 @@
 from .exceptions import ProgrammingError
 from distutils.version import StrictVersion
 import warnings
-import pandas as pd
 from datetime import datetime
 
 BULK_INSERT_MIN_VERSION = StrictVersion("0.42.0")
