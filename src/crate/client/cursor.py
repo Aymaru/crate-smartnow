@@ -53,37 +53,45 @@ class Cursor(object):
 
         self._result = self.connection.client.sql(sql, parameters,
                                                   bulk_parameters)
+
         if "rows" in self._result:
+            transformed_result = False
             if "col_types" in self._result:
-                rows_to_convert = self._get_rows_to_convert_to_date(self._result["col_types"])
-                for flag in rows_to_convert:
-                    if flag:
-                        t_rows = (row for row in self._result["rows"])
-                        t_values = (self._transform_date_columns(row, (flag for flag in rows_to_convert))
-                                    for row in t_rows)
-                        self._result["rows"] = [[value for value in row] for row in t_values]
-                        break
-            self.rows = iter(self._result["rows"])
+                transformed_result = True
+                self.rows = self.result_set_transformed()
+
+            if not transformed_result:
+                self.rows = iter(self._result["rows"])
+
+    def result_set_transformed(self):
+        """
+        Generator that iterates over each row from the result set
+        """
+        rows_to_convert = [True if col_type == 11 or col_type == 15 else False for col_type in
+                           self._result["col_types"]]
+        for row in self._result["rows"]:
+            gen_flags = (flag for flag in rows_to_convert)
+            yield [t_row for t_row in self._transform_date_columns(row, gen_flags)]
 
     @staticmethod
     def _transform_date_columns(row, gen_flags):
         """
-        Generates a list of boolean. True if the column is type timestamp (11 - 15)
+        Generates iterates over each value from a row and converts timestamps to pandas TIMESTAMP
         """
         for value in row:
-            flag = next(gen_flags)
+            try:
+                flag = next(gen_flags)
+            except StopIteration:
+                break
+
             if not flag or value is None:
                 yield value
             else:
-                value = datetime.fromtimestamp(float(str(value)[0:10]))
-                yield value
-
-    @staticmethod
-    def _get_rows_to_convert_to_date(col_types):
-        """
-        Generates a list of boolean. True if the column is type timestamp (11 - 15)
-        """
-        return [True if col_type == 11 or col_type == 15 else False for col_type in col_types]
+                if value < 0:
+                    yield None
+                else:
+                    value = datetime.fromtimestamp(value / 1000)
+                    yield value
 
     def executemany(self, sql, seq_of_parameters):
         """
